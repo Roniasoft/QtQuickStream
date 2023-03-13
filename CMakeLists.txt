@@ -74,7 +74,7 @@ qt_add_qml_module(QtQuickStream
     VERSION 1.0
 
     QML_FILES
-
+        resources/Core/QSCore.qml
         resources/Core/QSFileIO.qml
         resources/Core/QSObject.qml
 
@@ -82,10 +82,10 @@ qt_add_qml_module(QtQuickStream
 
     SOURCES
         include/QtQuickStream/Core/FileIO.h
+        include/QtQuickStream/Core/QSCoreCpp.h
         include/QtQuickStream/Core/QSObjectCpp.h
 
-
-
+        source/Core/QSCoreCpp.cpp
         source/Core/QSObjectCpp.cpp
 
 
