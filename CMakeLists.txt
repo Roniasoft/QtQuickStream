@@ -63,7 +63,8 @@ qt_add_library(QtQuickStream STATIC)
 # Extra QML File properties
 set_source_files_properties(
     resources/Core/QSFileIO.qml
-
+    resources/Core/QSSerializer.qml
+    resources/Core/QSUtil.qml
 
     PROPERTIES
         QT_QML_SINGLETON_TYPE True
@@ -77,17 +78,20 @@ qt_add_qml_module(QtQuickStream
         resources/Core/QSCore.qml
         resources/Core/QSFileIO.qml
         resources/Core/QSObject.qml
-
+        resources/Core/QSRepository.qml
+        resources/Core/QSSerializer.qml
+        resources/Core/QSUtil.qml
 
 
     SOURCES
         include/QtQuickStream/Core/FileIO.h
         include/QtQuickStream/Core/QSCoreCpp.h
         include/QtQuickStream/Core/QSObjectCpp.h
+        include/QtQuickStream/Core/QSRepositoryCpp.h
 
         source/Core/QSCoreCpp.cpp
         source/Core/QSObjectCpp.cpp
-
+        source/Core/QSRepositoryCpp.cpp
 
     RESOURCES
 
