@@ -18,7 +18,7 @@ class QSCoreCpp : public QObject
     Q_OBJECT
     Q_PROPERTY(QString          coreId      READ    getCoreIdStr                            CONSTANT)
     Q_PROPERTY(QSRepositoryCpp* defaultRepo READ    getDefaultRepo  WRITE   setDefaultRepo  NOTIFY defaultRepoChanged)
-    Q_PROPERTY(QVariantMap      qsRepos    MEMBER  m_qsRepos                              NOTIFY qsReposChanged)
+    Q_PROPERTY(QVariantMap      qsRepos    MEMBER   m_qsRepos                              NOTIFY qsReposChanged)
     QML_ELEMENT
 
 public:

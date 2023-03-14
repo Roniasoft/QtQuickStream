@@ -24,7 +24,8 @@ QtObject {
     /* Property Declarations
      * ****************************************************************************************/
     readonly property var    blackListedPropNames: [
-        "objectName"
+        "objectName",
+        "selectionModel"
     ]
 
     //! Identified for QtQuickStream object references
@@ -62,7 +63,9 @@ QtObject {
                 // Get temporary (will overwrite sub-properties of old prop value)
                 let oldPropVal = obj[propName];
                 let tmpPropVal = fromQSUrlProp(oldPropVal, propVal, repo);
-
+                if(propName === "position") {
+                   tmpPropVal = Qt.point(tmpPropVal["x"], tmpPropVal["y"]); //Temp
+                }
                 // Skip if equal, overwrite if different
                 if (tmpPropVal !== oldPropVal) {
                     obj[propName] = tmpPropVal;
@@ -153,11 +156,6 @@ QtObject {
         // Overwrite type by interface if only interfaces requested
         if (handleAsInterface) {
             objectSimpleProps["qsType"] = obj._qsInterfaceType;
-        }
-
-        // Overwrite availability if remote and remoteUnavailable
-        if (handleAsUnavailable) {
-            objectSimpleProps["qsIsAvailable"] = false;
         }
 
         return objectSimpleProps;
