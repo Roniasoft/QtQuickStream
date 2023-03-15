@@ -63,9 +63,6 @@ QtObject {
                 // Get temporary (will overwrite sub-properties of old prop value)
                 let oldPropVal = obj[propName];
                 let tmpPropVal = fromQSUrlProp(oldPropVal, propVal, repo);
-                if(propName === "position") {
-                   tmpPropVal = Qt.point(tmpPropVal["x"], tmpPropVal["y"]); //Temp
-                }
                 // Skip if equal, overwrite if different
                 if (tmpPropVal !== oldPropVal) {
                     obj[propName] = tmpPropVal;
