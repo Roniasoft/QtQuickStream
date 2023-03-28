@@ -95,7 +95,7 @@ QtObject {
             //! \todo this should be based on the propValue, not the objProp
             //! \note hopefully this wont be needed in a future qt version
             if (isQVector(objProp)) {
-                return Object.values(propValue).join(",");
+                return Qt.vector2d(propValue["x"], propValue["y"]);
             }
             // Make sure arrays stay arrays
             else if (Array.isArray(objProp)) {
@@ -129,7 +129,7 @@ QtObject {
 
     //! Returns a map (object) in which other QSObjects are replaced by their QtQuickStream URL
     //! \todo This code needs a cleanup/rewrite
-    function getQSProps(obj: object, serialType = QSSerializer.SerialType.NETWORK) : object
+    function getQSProps(obj: object, serialType = QSSerializer.SerialType.STORAGE) : object
     {
         const handleAsInterface     = (serialType === QSSerializer.SerialType.NETWORK)
                                    && obj?._qsInterfaceType;
@@ -159,7 +159,7 @@ QtObject {
     }
 
     //! Replaces QSObjects by their QtQuickStream
-    function getQSProp(propValue, serialType = QSSerializer.SerialType.NETWORK)
+    function getQSProp(propValue, serialType = QSSerializer.SerialType.STORAGE)
     {
         // Nothing to do for null, undefined, etc.
         if (propValue == null) { return propValue; }
@@ -213,6 +213,9 @@ QtObject {
     //! \todo Terrible performance - hopefully not needed in future Qt versions
     function isQVector(obj) : bool
     {
+        if(obj.hasOwnProperty("x") && obj.hasOwnProperty("y"))
+            return true;
+
         return obj !== null
             && obj.toString().startsWith("QVector");
     }
