@@ -213,6 +213,9 @@ QtObject {
     //! \todo Terrible performance - hopefully not needed in future Qt versions
     function isQVector(obj) : bool
     {
+        if(obj === undefined)
+            return false;
+
         if(obj.hasOwnProperty("x") && obj.hasOwnProperty("y"))
             return true;
 
