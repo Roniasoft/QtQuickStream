@@ -94,10 +94,14 @@ QSRepositoryCpp {
      * ****************************************************************************************/
     function loadRepo(jsonObjects: object, deleteOldObjects = true) : bool
     {
+        //! Satrt the loading process
+        _isLoading = true;
+
         /* 1. Validate Object Map
          * ********************************************************************************/
         if (jsonObjects[_rootkey] === undefined) {
             console.warn("[QSRepo] Could not find root, aborting");
+            _isLoading = false;
             return false;
         }
 
@@ -134,6 +138,9 @@ QSRepositoryCpp {
             }
         }
 
+        //! Finish the loading process
+        _isLoading = false;
+
         return true;
     }
 
@@ -142,7 +149,6 @@ QSRepositoryCpp {
      * ****************************************************************************************/
     function loadQSObjects(jsonObjects: object) : bool
     {
-        _isLoading = true;
 
         /* 1. Create objects with default property values
          * ********************************************************************************/
@@ -178,7 +184,6 @@ QSRepositoryCpp {
             QSSerializer.fromQSUrlProps(_qsObjects[objId], jsonObj, repo);
         }
 
-        _isLoading = false;
 
         return true;
     }
