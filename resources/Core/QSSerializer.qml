@@ -56,8 +56,9 @@ QtObject {
         // Go over all props
         for (const [propName, propVal] of Object.entries(props)) {
             //! \todo Skip readonly properties
+            if ((typeof propVal) === "function")   { continue; }
             if (propName === "qsType")             { continue; }
-            if (isPropertyBlackListed(propName))    { continue; }
+            if (isPropertyBlackListed(propName))   { continue; }
 
             try {
                 // Get temporary (will overwrite sub-properties of old prop value)
