@@ -134,7 +134,7 @@ QSRepositoryCpp {
         // Inform all new local objects that they were loaded (from storage)
         for (const [objId, qsObj] of Object.entries(_qsObjects)) {
             if (objId in jsonObjects) {
-                qsObj.loadedFromStorage();
+                qsObj?.loadedFromStorage();
             }
         }
 

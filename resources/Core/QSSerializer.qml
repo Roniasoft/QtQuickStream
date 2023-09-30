@@ -97,6 +97,9 @@ QtObject {
             //! \note hopefully this wont be needed in a future qt version
             if (isQVector(objProp)) {
                 return Qt.vector2d(propValue["x"], propValue["y"]);
+
+            } else  if (isQSize(objProp)) {
+                return Qt.size(propValue["width"], propValue["height"]);
             }
             // Make sure arrays stay arrays
             else if (Array.isArray(objProp)) {
@@ -214,7 +217,7 @@ QtObject {
     //! \todo Terrible performance - hopefully not needed in future Qt versions
     function isQVector(obj) : bool
     {
-        if(obj === undefined)
+        if(!obj || obj === undefined)
             return false;
 
         if(obj.hasOwnProperty("x") && obj.hasOwnProperty("y"))
@@ -222,6 +225,20 @@ QtObject {
 
         return obj !== null
             && obj.toString().startsWith("QVector");
+    }
+
+    //! Returns whether the object is a Qt Size.
+    //! \todo Terrible performance - hopefully not needed in future Qt versions
+    function isQSize(obj) : bool
+    {
+        if(!obj || obj === undefined)
+            return false;
+
+        if(obj.hasOwnProperty("width") && obj.hasOwnProperty("height"))
+            return true;
+
+        return obj !== null
+            && obj.toString().startsWith("QSize");
     }
 
     //! Returns whether the object is QSObject.
