@@ -1,22 +1,22 @@
-#ifndef FILEIO_H
-#define FILEIO_H
+#pragma once
 
 #include <QFile>
 #include <QTextStream>
-#include <qqml.h>
+#include <QtQmlIntegration>
 
 /*! ***********************************************************************************************
  * FileIO provides file reading/wiring functionality to QML
  * ************************************************************************************************/
-class FileIO : public QObject
+class QSFileIO : public QObject
 {
     Q_OBJECT
     QML_ELEMENT
+    QML_SINGLETON
 
     /* Public Constructors & Destructor
      * ****************************************************************************************/
 public:
-    explicit FileIO(QObject *parent = nullptr) : QObject(parent) {}
+    explicit QSFileIO(QObject *parent = nullptr) : QObject(parent) {}
 
     /* Public Slots
      * ****************************************************************************************/
@@ -39,7 +39,7 @@ public slots:
     }
 
     //! Reads data from file with fileName, empty if failed
-    QByteArray read(const QString &fileName)
+    QByteArray read(const QString& fileName)
     {
         if (fileName.isEmpty())                             { return ""; }
 
@@ -56,5 +56,3 @@ public slots:
         return read(fileUrl.toLocalFile());
     }
 };
-
-#endif // FILEIO_H

@@ -11,8 +11,8 @@ project(QtQuickStream VERSION 1.0 LANGUAGES CXX)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set (QML_IMPORT_PATH ${CMAKE_CURRENT_SOURCE_DIR})
-
+list(APPEND QML_IMPORT_PATH ${CMAKE_CURRENT_SOURCE_DIR})
+list(APPEND QML_IMPORT_PATH ${CMAKE_CURRENT_BINARY_DIR})
 
 #message(${QML_IMPORT_PATH})
 #Turns on default settings for development of QtQuickStream
@@ -30,12 +30,14 @@ option(BUILD_DEBUG_POSTFIX_D "Append d suffix to debug libraries" OFF)
 find_package(Qt6
   COMPONENTS
    Quick
+   Core
 )
 
 if (NOT Qt6_FOUND)
   find_package(Qt5 QUIET
     COMPONENTS
     Quick
+    Core
   )
 endif()
 
@@ -62,7 +64,7 @@ qt_add_library(QtQuickStream STATIC)
 
 # Extra QML File properties
 set_source_files_properties(
-    resources/Core/QSFileIO.qml
+    include/QtQuickStream/Core/QSFileIO.h
     resources/Core/QSSerializer.qml
     resources/Core/QSUtil.qml
 
@@ -76,7 +78,6 @@ qt_add_qml_module(QtQuickStream
 
     QML_FILES
         resources/Core/QSCore.qml
-        resources/Core/QSFileIO.qml
         resources/Core/QSObject.qml
         resources/Core/QSRepository.qml
         resources/Core/QSSerializer.qml
@@ -84,7 +85,7 @@ qt_add_qml_module(QtQuickStream
 
 
     SOURCES
-        include/QtQuickStream/Core/FileIO.h
+        include/QtQuickStream/Core/QSFileIO.h
         include/QtQuickStream/Core/QSCoreCpp.h
         include/QtQuickStream/Core/QSObjectCpp.h
         include/QtQuickStream/Core/QSRepositoryCpp.h
@@ -116,6 +117,7 @@ target_compile_definitions(QtQuickStream
 target_link_libraries(QtQuickStream
   PRIVATE
     ${Qt}::Quick
+    ${Qt}::Core
 )
 
 set_target_properties(QtQuickStream PROPERTIES
@@ -129,8 +131,6 @@ set_target_properties(QtQuickStream PROPERTIES
 install(TARGETS QtQuickStream
     BUNDLE DESTINATION .
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
-
-set(QML_IMPORT_PATH ${QT_QML_OUTPUT_DIRECTORY} CACHE STRING "QtCreator QML Modules Lookup")
 
 if(${BUILD_EXAMPLES})
   add_subdirectory(examples)
