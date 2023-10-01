@@ -44,7 +44,7 @@ public slots:
         if (fileName.isEmpty())                             { return ""; }
 
         QFile file(fileName);
-        if (!file.open(QFile::ReadOnly))                    { return ""; }
+        if (!file.open(QFile::ReadOnly) || !file.exists())  { return ""; }
 
         // File is closed automatically when if goes out of scope
         return file.readAll();
