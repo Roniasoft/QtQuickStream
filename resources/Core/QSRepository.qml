@@ -127,7 +127,11 @@ QSRepositoryCpp {
         /* 4. Set root object
          * ********************************************************************************/
         // Reload root
-        qsRootObject = QSSerializer.resolveQSUrl(rootUrl, repo);
+        let rootObj = QSSerializer.resolveQSUrl(rootUrl, repo);
+        if (rootObj) {
+            qsRootObject.destroy();
+            qsRootObject = QSSerializer.resolveQSUrl(rootUrl, repo);
+        }
 
         /* 5. Initialize local objects
          * ********************************************************************************/
