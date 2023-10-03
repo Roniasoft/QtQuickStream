@@ -128,7 +128,7 @@ QSRepositoryCpp {
          * ********************************************************************************/
         // Reload root
         let rootObj = QSSerializer.resolveQSUrl(rootUrl, repo);
-        if (rootObj && rootObj._qsUuid !== qsRootObject._qsUuid)
+        if (qsRootObject && rootObj && rootObj._qsUuid !== qsRootObject._qsUuid)
             qsRootObject.destroy();
 
         qsRootObject = rootObj;
