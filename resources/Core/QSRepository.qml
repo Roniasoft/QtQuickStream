@@ -23,7 +23,13 @@ QSRepositoryCpp {
     // To be set by the system core, e.g., 'SystemCore'
     property var                imports:        [ "QtQuickStream" ]
 
+    property string             _licenceKey:     "LicenceKey"
+
+    //! Application name
+    property string             _applicationName: ""
+
     name: qsRootObject?.objectName ?? "Uninitialized Repo"
+
 
 
     /* ****************************************************************************************
@@ -75,6 +81,11 @@ QSRepositoryCpp {
     {
         var jsonObjects = {};
 
+        //! Hash the application name and the licensekey
+        var hashedLicenseKey = HashStringCPP.hashString(_licenceKey);
+        var hashedAppName    = HashStringCPP.hashString(_applicationName);
+        jsonObjects[hashedLicenseKey] = hashedAppName;
+
         // Build tree from all objects' attributes (replacing references by UUIDs)
         for (const [objId, qsObj] of Object.entries(_qsObjects)) {
             try {
@@ -97,10 +108,26 @@ QSRepositoryCpp {
         //! Satrt the loading process
         _isLoading = true;
 
-        /* 1. Validate Object Map
+        /* 1. Validate the file
+         * ********************************************************************************/
+
+        //! Hash the application name and the licensekey
+        var hashedLicenseKey = HashStringCPP.hashString(_licenceKey);
+        var hashedAppName    = jsonObjects[hashedLicenseKey];
+        var hashRealAppName  = HashStringCPP.hashString(_applicationName);
+
+        if (hashedAppName.length === 0 && !HashStringCPP.compareStringModels(hashedAppName, hashRealAppName)) {
+            console.warn("[Application] The file is unrelated to the application, failed.");
+            _isLoading = false;
+            return false;
+        }
+
+        delete jsonObjects[hashedLicenseKey];
+
+        /* 2. Validate Object Map
          * ********************************************************************************/
         if (jsonObjects[_rootkey] === undefined) {
-            console.warn("[QSRepo] Could not find root, aborting");
+            console.warn("[QSRepo] Could not find root, failed.");
             _isLoading = false;
             return false;
         }
@@ -109,11 +136,11 @@ QSRepositoryCpp {
         var rootUrl = jsonObjects[_rootkey];
         delete jsonObjects[_rootkey];
 
-        /* 2. Create objects
+        /* 3. Create objects
          * ********************************************************************************/
         loadQSObjects(jsonObjects);
 
-        /* 3. Delete unneeded objects
+        /* 4. Delete unneeded objects
          * ********************************************************************************/
         if (deleteOldObjects) {
             Object.keys     (_qsObjects)
@@ -124,7 +151,7 @@ QSRepositoryCpp {
             });
         };
 
-        /* 4. Set root object
+        /* 5. Set root object
          * ********************************************************************************/
         // Reload root
         let rootObj = QSSerializer.resolveQSUrl(rootUrl, repo);
@@ -133,7 +160,7 @@ QSRepositoryCpp {
 
         qsRootObject = rootObj;
 
-        /* 5. Initialize local objects
+        /* 6. Initialize local objects
          * ********************************************************************************/
         // Inform all new local objects that they were loaded (from storage)
         for (const [objId, qsObj] of Object.entries(_qsObjects)) {
@@ -227,5 +254,12 @@ QSRepositoryCpp {
 
         // Store the tree to file
         return QSFileIO.write(fileName, JSON.stringify(repoDump, null, 4));
+    }
+
+    /*! ***************************************************************************************
+     * Set application name
+     * ****************************************************************************************/
+    function setApplicationName(application: string) {
+        _applicationName = application;
     }
 }
