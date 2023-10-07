@@ -23,7 +23,7 @@ QSRepositoryCpp {
     // To be set by the system core, e.g., 'SystemCore'
     property var                imports:        [ "QtQuickStream" ]
 
-    property string             _licenceKey:     "LicenceKey"
+    property string             _applicationKey:     "Application"
 
     //! Application name
     property string             _applicationName: ""
@@ -82,7 +82,7 @@ QSRepositoryCpp {
         var jsonObjects = {};
 
         //! Hash the application name and the licensekey
-        var hashedLicenseKey = HashStringCPP.hashString(_licenceKey);
+        var hashedLicenseKey = HashStringCPP.hashString(_applicationKey);
         var hashedAppName    = HashStringCPP.hashString(_applicationName);
         jsonObjects[hashedLicenseKey] = hashedAppName;
 
@@ -111,18 +111,18 @@ QSRepositoryCpp {
         /* 1. Validate the file
          * ********************************************************************************/
 
-        //! Hash the application name and the licensekey
-        var hashedLicenseKey = HashStringCPP.hashString(_licenceKey);
-        var hashedAppName    = jsonObjects[hashedLicenseKey];
+        //! Hash the application name and its key
+        var hashedAppKey     = HashStringCPP.hashString(_applicationKey);
+        var hashedAppName    = jsonObjects[hashedAppKey];
         var hashRealAppName  = HashStringCPP.hashString(_applicationName);
 
-        if (hashedAppName.length === 0 && !HashStringCPP.compareStringModels(hashedAppName, hashRealAppName)) {
+        if (hashedAppName.length !== 0 && !HashStringCPP.compareStringModels(hashedAppName, hashRealAppName)) {
             console.warn("[Application] The file is unrelated to the application, failed.");
             _isLoading = false;
             return false;
         }
 
-        delete jsonObjects[hashedLicenseKey];
+        delete jsonObjects[hashedAppKey];
 
         /* 2. Validate Object Map
          * ********************************************************************************/
