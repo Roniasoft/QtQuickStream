@@ -25,6 +25,9 @@ protected slots:
     //! Hash a string with Md5
     QString hashString(QString str);
 
+    //! Hash a string with Md5 then hex
+    QString hexHashString(QString str);
+
     //! Compare two string models.
     bool compareStringModels(QString strModelFirst, QString strModelSecound);
 };

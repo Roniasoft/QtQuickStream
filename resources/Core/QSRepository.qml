@@ -89,8 +89,8 @@ QSRepositoryCpp {
         jsonObjects[_versionKey] = _version;
 
         //! Hash the application name and the licensekey
-        var hashedAppKey     = HashStringCPP.hashString(_applicationKey);
-        var hashedAppName    = HashStringCPP.hashString(_applicationName);
+        var hashedAppKey     = HashStringCPP.hexHashString(_applicationKey);
+        var hashedAppName    = HashStringCPP.hexHashString(_applicationName);
         jsonObjects[hashedAppKey] = hashedAppName;
 
         // Build tree from all objects' attributes (replacing references by UUIDs)
@@ -119,9 +119,9 @@ QSRepositoryCpp {
          * ********************************************************************************/
 
         //! Hash the application name and its key
-        var hashedAppKey     = HashStringCPP.hashString(_applicationKey);
+        var hashedAppKey     = HashStringCPP.hexHashString(_applicationKey);
         var hashedAppName    = jsonObjects[hashedAppKey];
-        var hashRealAppName  = HashStringCPP.hashString(_applicationName);
+        var hashRealAppName  = HashStringCPP.hexHashString(_applicationName);
 
         if (hashedAppName.length !== 0 && !HashStringCPP.compareStringModels(hashedAppName, hashRealAppName)) {
             console.warn("[QSRepo] The file is unrelated to the application, failed.");

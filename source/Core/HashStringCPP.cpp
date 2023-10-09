@@ -21,16 +21,29 @@ HashStringCPP::HashStringCPP(QObject *parent)
  * ************************************************************************************************/
 
 /*!
- * Hash a string with Md5.
+ * \brief HashStringCPP::hashString Hash a string with Md5.
  *
  * \param str is string that be hash.
  */
 QString HashStringCPP::hashString(QString str)
 {
     QCryptographicHash::Algorithm algorithm = QCryptographicHash::Md5;
-    QByteArray hashedStr   = QCryptographicHash::hash(str.toStdString(),   algorithm);
+    QByteArray hashedStr = QCryptographicHash::hash(str.toStdString(), algorithm);
 
     return hashedStr;
+}
+
+/*!
+ * \brief HashStringCPP::hexHashString Hash a string with Md5 and converts to hex for better visualization.
+ * 
+ * \param str is string that be hash.
+ */
+QString HashStringCPP::hexHashString(QString str)
+{
+    QCryptographicHash::Algorithm algorithm = QCryptographicHash::Md5;
+    QByteArray hashedStr = QCryptographicHash::hash(str.toStdString(), algorithm);
+
+    return hashedStr.toHex();
 }
 
 /*!
