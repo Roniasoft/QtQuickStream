@@ -28,6 +28,9 @@ QSRepositoryCpp {
     //! Application name
     property string             _applicationName: ""
 
+    property string _versionKey: "version"
+    property string _version: ""
+
     name: qsRootObject?.objectName ?? "Uninitialized Repo"
 
 
@@ -81,6 +84,9 @@ QSRepositoryCpp {
     {
         var jsonObjects = {};
 
+        // Add version
+        jsonObjects[_versionKey] = _version;
+
         //! Hash the application name and the licensekey
         var hashedLicenseKey = HashStringCPP.hashString(_applicationKey);
         var hashedAppName    = HashStringCPP.hashString(_applicationName);
@@ -107,6 +113,19 @@ QSRepositoryCpp {
     {
         //! Satrt the loading process
         _isLoading = true;
+
+        /* 0. Check version
+         * ********************************************************************************/
+
+        var versionString = jsonObjects[_versionKey];
+        console.log("asdaddVers", _version)
+        if (!versionString || !checkApplicationVersion(versionString)) {
+            console.warn("[Application] Version mismatched, failed.");
+            _isLoading = false;
+            return false
+        }
+
+        delete jsonObjects[_versionKey];
 
         /* 1. Validate the file
          * ********************************************************************************/
@@ -261,5 +280,43 @@ QSRepositoryCpp {
      * ****************************************************************************************/
     function setApplicationName(application: string) {
         _applicationName = application;
+    }
+
+    /*! ***************************************************************************************
+     * Set application version
+     * ****************************************************************************************/
+
+    function setApplicationVersion(version: string) {
+        _version = version;
+    }
+
+    /*! ***************************************************************************************
+     * Check application version
+     * The application version should be equal to or greater than the file version.
+     * ****************************************************************************************/
+
+    function checkApplicationVersion(savedVersion: string) : bool {
+
+        if (savedVersion.length > 0) {
+            var versionArray = savedVersion.split(".");
+            if (versionArray.length === 3) {
+                var appVersionArray = _version.split(".");
+                var appMajorVersion = appVersionArray[0];
+                var appMidleVersion = appVersionArray[1];
+                var appMinorVersion = appVersionArray[2];
+
+                var majorVersion = versionArray[0];
+                var midleVersion = versionArray[1];
+                var minorVersion = versionArray[2];
+
+                var isValidVersion  = ((appMajorVersion > majorVersion) ||
+                        (appMajorVersion === majorVersion && appMidleVersion > midleVersion) ||
+                         (appMajorVersion === majorVersion && appMidleVersion === midleVersion && appMinorVersion >= minorVersion));
+
+                return isValidVersion;
+            }
+        }
+
+        return false;
     }
 }
