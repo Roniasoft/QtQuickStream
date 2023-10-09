@@ -23,13 +23,14 @@ QSRepositoryCpp {
     // To be set by the system core, e.g., 'SystemCore'
     property var                imports:        [ "QtQuickStream" ]
 
-    property string             _applicationKey:     "Application"
-
     //! Application name
+    property string             _applicationKey:     "Application"
     property string             _applicationName: ""
 
+    //! Application Version and supported version
     property string _versionKey: "version"
     property string _version: ""
+    property string _supported_minimum_version: ""
 
     name: qsRootObject?.objectName ?? "Uninitialized Repo"
 
@@ -88,9 +89,9 @@ QSRepositoryCpp {
         jsonObjects[_versionKey] = _version;
 
         //! Hash the application name and the licensekey
-        var hashedLicenseKey = HashStringCPP.hashString(_applicationKey);
+        var hashedAppKey     = HashStringCPP.hashString(_applicationKey);
         var hashedAppName    = HashStringCPP.hashString(_applicationName);
-        jsonObjects[hashedLicenseKey] = hashedAppName;
+        jsonObjects[hashedAppKey] = hashedAppName;
 
         // Build tree from all objects' attributes (replacing references by UUIDs)
         for (const [objId, qsObj] of Object.entries(_qsObjects)) {
@@ -114,20 +115,7 @@ QSRepositoryCpp {
         //! Satrt the loading process
         _isLoading = true;
 
-        /* 0. Check version
-         * ********************************************************************************/
-
-        var versionString = jsonObjects[_versionKey];
-        console.log("asdaddVers", _version)
-        if (!versionString || !checkApplicationVersion(versionString)) {
-            console.warn("[Application] Version mismatched, failed.");
-            _isLoading = false;
-            return false
-        }
-
-        delete jsonObjects[_versionKey];
-
-        /* 1. Validate the file
+        /* 0. Validate the file
          * ********************************************************************************/
 
         //! Hash the application name and its key
@@ -136,12 +124,27 @@ QSRepositoryCpp {
         var hashRealAppName  = HashStringCPP.hashString(_applicationName);
 
         if (hashedAppName.length !== 0 && !HashStringCPP.compareStringModels(hashedAppName, hashRealAppName)) {
-            console.warn("[Application] The file is unrelated to the application, failed.");
+            console.warn("[QSRepo] The file is unrelated to the application, failed.");
             _isLoading = false;
             return false;
         }
 
         delete jsonObjects[hashedAppKey];
+
+        /* 1. Check version
+         * ********************************************************************************/
+
+        var versionString = jsonObjects[_versionKey];
+        if (_supported_minimum_version.length > 0) {
+            console.warn("[QSRepo] Loading Version ", versionString);
+            if (!versionString || !checkApplicationVersion(versionString) || !checkSupportedVersion(versionString)) {
+                console.warn("[QSRepo] Version not supported, failed. Minimum spported version is ", _supported_minimum_version);
+                _isLoading = false;
+                return false
+            }
+        }
+
+        delete jsonObjects[_versionKey];
 
         /* 2. Validate Object Map
          * ********************************************************************************/
@@ -290,28 +293,60 @@ QSRepositoryCpp {
         _version = version;
     }
 
+    function setApplicationMinimumVersionSupported(version: string) {
+        _supported_minimum_version = version;
+        if (!checkSupportedVersion(_version))
+            console.warn("[QSRepo] Minimum Supported version : ", version, " can not be greater than current version: ", _version);
+    }
+
     /*! ***************************************************************************************
      * Check application version
-     * The application version should be equal to or greater than the file version.
+     * The application should only load files with major version equal or less unless that not match the minimum version required.
      * ****************************************************************************************/
+
+    function checkSupportedVersion(savedVersion: string) : bool {
+
+        if (savedVersion.length > 0) {
+            var versionArraySaved = savedVersion.split(".");
+            if (versionArraySaved.length === 3) {
+                var majorVersionSaved = versionArraySaved[0];
+                var middleVersionSaved = versionArraySaved[1];
+                var minorVersionSaved = versionArraySaved[2];
+
+                var versionArraySupported = _supported_minimum_version.split(".");
+                var majorVersionSupported = versionArraySupported[0];
+                var middleVersionSupported = versionArraySupported[1];
+                var minorVersionSupported = versionArraySupported[2];
+
+                var isValidVersion  = ((majorVersionSaved > majorVersionSupported) ||
+                        (majorVersionSaved === majorVersionSupported && middleVersionSaved > middleVersionSupported) ||
+                         (majorVersionSaved === majorVersionSupported && middleVersionSaved === middleVersionSupported && minorVersionSaved >= minorVersionSupported));
+
+                if (!isValidVersion)
+                    console.warn("[QSRepo] the save file is too old, not supported.");
+
+                return isValidVersion;
+            }
+        }
+
+        return false;
+    }
+
 
     function checkApplicationVersion(savedVersion: string) : bool {
 
         if (savedVersion.length > 0) {
-            var versionArray = savedVersion.split(".");
-            if (versionArray.length === 3) {
-                var appVersionArray = _version.split(".");
-                var appMajorVersion = appVersionArray[0];
-                var appMidleVersion = appVersionArray[1];
-                var appMinorVersion = appVersionArray[2];
+            var versionArraySaved = savedVersion.split(".");
+            if (versionArraySaved.length > 0) {
+                var majorVersionSaved = versionArraySaved[0];
 
-                var majorVersion = versionArray[0];
-                var midleVersion = versionArray[1];
-                var minorVersion = versionArray[2];
+                var versionArrayApp = _version.split(".");
+                var majorVersionApp = versionArrayApp[0];
 
-                var isValidVersion  = ((appMajorVersion > majorVersion) ||
-                        (appMajorVersion === majorVersion && appMidleVersion > midleVersion) ||
-                         (appMajorVersion === majorVersion && appMidleVersion === midleVersion && appMinorVersion >= minorVersion));
+                var isValidVersion  = majorVersionApp >= majorVersionSaved;
+
+                if (!isValidVersion)
+                    console.warn("[QSRepo] the save file is for Higher Major version, not supported.");
 
                 return isValidVersion;
             }
