@@ -300,33 +300,50 @@ QSRepositoryCpp {
     }
 
     /*! ***************************************************************************************
+     * converts version string to int
+     * assumed that each part is not greater than 99
+     * ****************************************************************************************/
+    function getVersionNumber(versionString: string): int {
+        if (versionString.length > 0) {
+            var versionArray = versionString.split(".");
+            var resultArray = versionArray.map(function(part, index) {
+                if (part > 99)
+                    console.warn("[QSRepo] version part should not be greater than 99")
+                // Convert the part to a number and perform different operations based on the index
+                switch (index) {
+                    case 0:
+                        return parseInt(part) * 10000;
+                    case 1:
+                        return parseInt(part) * 100;
+                    default:
+                        return parseInt(part);
+                }
+            });
+
+            // Calculate the sum of the results
+            var sum = resultArray.reduce(function(total, value) {
+                return total + value;
+            }, 0);
+
+            return sum;
+        }
+    }
+
+    /*! ***************************************************************************************
      * Check application version
      * The application should only load files with major version equal or less unless that not match the minimum version required.
      * ****************************************************************************************/
-
     function checkSupportedVersion(savedVersion: string) : bool {
-
         if (savedVersion.length > 0) {
-            var versionArraySaved = savedVersion.split(".");
-            if (versionArraySaved.length === 3) {
-                var majorVersionSaved = versionArraySaved[0];
-                var middleVersionSaved = versionArraySaved[1];
-                var minorVersionSaved = versionArraySaved[2];
+            var saved = getVersionNumber(savedVersion)
+            var minimum = getVersionNumber(_supported_minimum_version)
 
-                var versionArraySupported = _supported_minimum_version.split(".");
-                var majorVersionSupported = versionArraySupported[0];
-                var middleVersionSupported = versionArraySupported[1];
-                var minorVersionSupported = versionArraySupported[2];
+            var isValidVersion  = saved >= minimum;
 
-                var isValidVersion  = ((majorVersionSaved > majorVersionSupported) ||
-                        (majorVersionSaved === majorVersionSupported && middleVersionSaved > middleVersionSupported) ||
-                         (majorVersionSaved === majorVersionSupported && middleVersionSaved === middleVersionSupported && minorVersionSaved >= minorVersionSupported));
+            if (!isValidVersion)
+                console.warn("[QSRepo] the save file is too old, not supported.");
 
-                if (!isValidVersion)
-                    console.warn("[QSRepo] the save file is too old, not supported.");
-
-                return isValidVersion;
-            }
+            return isValidVersion;
         }
 
         return false;
