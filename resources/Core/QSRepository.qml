@@ -250,7 +250,7 @@ QSRepositoryCpp {
     function loadFromFile(fileName: variant) : bool
     {
         // Read file
-        var jsonString = QSFileIO.read(Qt.resolvedUrl(fileName));
+        var jsonString = QSFileIO.read(fileName);
 
         // Sanity check: abort if file was empty
         if (jsonString == 0) {
@@ -275,7 +275,7 @@ QSRepositoryCpp {
         let repoDump = dumpRepo(QSSerializer.SerialType.STORAGE);
 
         // Store the tree to file
-        return QSFileIO.write(Qt.resolvedUrl(fileName), JSON.stringify(repoDump, null, 4));
+        return QSFileIO.write(fileName, JSON.stringify(repoDump, null, 4));
     }
 
     /*! ***************************************************************************************
