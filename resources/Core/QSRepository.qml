@@ -247,7 +247,7 @@ QSRepositoryCpp {
     /*! ***************************************************************************************
      * Loads the repo and all its objects from a file
      * ****************************************************************************************/
-    function loadFromFile(fileName: string) : bool
+    function loadFromFile(fileName: variant) : bool
     {
         // Read file
         var jsonString = QSFileIO.read(fileName);
@@ -266,7 +266,7 @@ QSRepositoryCpp {
     /*! ***************************************************************************************
      * Stores the repo and all its objects to a file
      * ****************************************************************************************/
-    function saveToFile(fileName: string) : bool
+    function saveToFile(fileName: variant) : bool
     {
         console.log("[QSRepo] Saving Repo to File: " + fileName);
         console.log(QSSerializer.SerialType.STORAGE);
