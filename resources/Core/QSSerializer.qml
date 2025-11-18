@@ -38,15 +38,14 @@ QtObject {
     function createQSObject(qsType: string, imports = [ "QtQuickStream" ],
                              parent = serializer) : object
     {
-        let importString = imports.map(item => "import " + item + "; ").join("");
-        let obj = Qt.createQmlObject(importString + qsType + "{}", parent);
+        return QSObjectCreatorCPP.createQmlObject(qsType, imports, parent);
+    }
 
-        //! \todo Is this really necessary???
-        if (parent === serializer) {
-            obj._qsParent = null;
-        }
-
-        return obj;
+    //! Create objects based on its type and imports
+    function createQSObjects(count: int, qsType: string, imports = [ "QtQuickStream" ],
+                            parent = serializer) : list<object>
+    {
+        return QSObjectCreatorCPP.createQmlObjects(count, qsType, imports, parent);
     }
 
     //! Restores all QtQuickStream URLs by object references (using repo to resolve the object),

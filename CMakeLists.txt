@@ -66,6 +66,7 @@ qt_add_library(QtQuickStream STATIC)
 set_source_files_properties(
     include/QtQuickStream/Core/QSFileIO.h
     include/QtQuickStream/Core/HashStringCPP.h
+    include/QtQuickStream/Core/QSObjectCreatorCPP.h
 
     resources/Core/QSSerializer.qml
     resources/Core/QSUtil.qml
@@ -92,11 +93,13 @@ qt_add_qml_module(QtQuickStream
         include/QtQuickStream/Core/QSObjectCpp.h
         include/QtQuickStream/Core/QSRepositoryCpp.h
         include/QtQuickStream/Core/HashStringCPP.h
+        include/QtQuickStream/Core/QSObjectCreatorCPP.h
 
         source/Core/QSCoreCpp.cpp
         source/Core/QSObjectCpp.cpp
         source/Core/QSRepositoryCpp.cpp
         source/Core/HashStringCPP.cpp
+        source/Core/QSObjectCreatorCPP.cpp
 
     RESOURCES
 

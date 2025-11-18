@@ -65,8 +65,9 @@ QSRepositoryCpp {
         }
 
         // Create new root object
-        let importString = _allImports.map(item => "import " + item + "; ").join("");
-        let newRoot = Qt.createQmlObject(importString + rootObjectType + "{ _qsRepo: repo }", repo);
+        let imports = []
+        _allImports.map(item => imports.push(item))
+        let newRoot = QSObjectCreatorCPP.createQmlObject(rootObjectType, imports, repo, {"_qsRepo": repo});
 
         // Set new root if creation was succesful
         if (newRoot !== null) {
