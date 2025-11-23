@@ -87,3 +87,98 @@ QVariantList QSObjectCreatorCPP::createQmlObjects(int count, const QString& qsTy
 
     return createdObjects;
 }
+QSObjectCreatorCPP::QSObjectIncubator::QSObjectIncubator(QSObjectCreatorCPP *owner,
+                                                         const QString &type,
+                                                         QVariantList* resultList,
+                                                         QObject *actualParent,
+                                                         QMap<QString, QVariant> props,
+                                                         QObject *qsParent,
+                                                         int index
+                                                         )
+    : QQmlIncubator(Asynchronous),
+    m_owner(owner), m_type(type), m_result(resultList), m_parent(actualParent),
+    m_props(std::move(props)), m_qsParent(qsParent), m_index(index)
+{
+}
+
+void QSObjectCreatorCPP::QSObjectIncubator::statusChanged(Status status)
+{
+    if (status == Ready) {
+        QObject *obj = object();
+        if (!obj) return;
+
+        QQmlEngine::setObjectOwnership(obj, QQmlEngine::JavaScriptOwnership);
+        obj->setParent(m_parent);
+
+        for (auto it = m_props.cbegin(); it != m_props.cend(); ++it)
+            obj->setProperty(it.key().toUtf8().constData(), it.value());
+
+        if (m_parent == m_qsParent)
+            obj->setProperty("_qsParent", QVariant::fromValue<QObject*>(m_qsParent));
+
+        // Pre-allocated slot already exists
+        if (m_result) {
+            if (m_index < m_result->size()) {
+                (*m_result)[m_index] = QVariant::fromValue(obj);
+                emit m_owner->objectReady(obj, m_type);
+            }
+        } else
+            qDebug() << "state changed func(), no result avialable";
+
+    } else if (status == Error) {
+        qCritical() << "Incubation error:" << errors();
+        emit m_owner->objectError(errors(), m_type);
+    } else {
+        qDebug() << "status:" << status;
+    }
+}
+
+void QSObjectCreatorCPP::createQmlObjectsAsync(
+    int count,
+    const QString &qsType,
+    const QStringList &imports,
+    QObject *parentObj,
+    QMap<QString, QVariant> additionalProperties,
+    QVariant callerContext
+    )
+{
+    if (count <= 0)
+        return;
+
+    if (!m_engine) {
+        m_engine = qmlEngine(this);
+        if (!m_engine) {
+            qWarning() << "QSObjectCreatorCPP: Unable to get QML engine";
+            return;
+        }
+    }
+
+    QQmlContext *context = callerContext.value<QQmlContext*>();
+    if (!context && parentObj)
+        context = qmlContext(parentObj);
+
+    QUrl baseUrl = context ? context->baseUrl() : m_engine->baseUrl();
+
+    QString importString;
+    for (const QString &import : imports)
+        importString += QString("import %1; ").arg(import);
+
+    QString qmlString = QString("%1%2{}").arg(importString, qsType);
+
+    QObject *actualParent = parentObj ? parentObj : this;
+
+    QQmlComponent component(m_engine);
+    component.setData(qmlString.toUtf8(), baseUrl.resolved(QUrl("inline.qml")));
+
+    if (component.isError()) {
+        qCritical() << "QSObjectCreatorCPP: Error creating component:" << component.errors();
+        return;
+    }
+
+    auto createdObjects = new QVariantList();
+    createdObjects->resize(count);
+    for (int i = 0; i < count; ++i) {
+        auto *inc = new QSObjectIncubator(this, qsType, createdObjects, actualParent, additionalProperties, this, i);
+        component.create(*inc, context);
+    }
+}

@@ -32,6 +32,16 @@ QtObject {
     readonly property string protoString: "qqs:/"
     readonly property string protoStrLen: protoString.length
 
+    property Connections creatorBridge: Connections {
+              target: QSObjectCreatorCPP
+              function onObjectReady(obj, type) { serializer.objectReady(obj, type) }
+              function onObjectError(errors, type) { serializer.objectError(errors, type) }
+          }
+
+    signal objectReady(var obj, var type)
+    signal objectError(var errors, var type)
+
+
     /* Functions
      * ****************************************************************************************/
     //! Create object based on its type and imports
@@ -43,9 +53,10 @@ QtObject {
 
     //! Create objects based on its type and imports
     function createQSObjects(count: int, qsType: string, imports = [ "QtQuickStream" ],
-                            parent = serializer) : list<object>
+                            parent = serializer, properties = []) : list<object>
     {
-        return QSObjectCreatorCPP.createQmlObjects(count, qsType, imports, parent);
+        QSObjectCreatorCPP.createQmlObjectsAsync(count, qsType, imports, parent, properties);
+        //result will be notified by the created signals
     }
 
     //! Restores all QtQuickStream URLs by object references (using repo to resolve the object),
