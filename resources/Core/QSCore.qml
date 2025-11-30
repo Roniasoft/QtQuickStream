@@ -16,7 +16,7 @@ QSCoreCpp {
 
     /* Functions
      * ****************************************************************************************/
-    function createDefaultRepo(imports: object) {
+    function createDefaultRepo(imports: object) : QSRepository {
         // Create repo
         var newRepo = createRepo(core.coreId, false);
         newRepo.imports = imports;
@@ -24,7 +24,7 @@ QSCoreCpp {
         return newRepo;
     }
 
-    function createRepo(repoId: string, isRemote: bool) {
+    function createRepo(repoId: string, isRemote: bool) : QSRepository {
         // Create repo
         var newRepo = QSSerializer.createQSObject("QSRepository", ["QtQuickStream"], core);
 
